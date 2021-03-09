@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ant_icons/ant_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Bprofile extends StatelessWidget {
   final list1 = [
@@ -179,7 +180,11 @@ class Bprofile extends StatelessWidget {
                                 top: 230,
                                 left: 140,
                                 child: InkWell(
-                                  onTap: () {},
+                                  onTap: () async {
+                                    if (await canLaunch('tel:9876543210')) {
+                                      await launch('tel:9876543210');
+                                    }
+                                  },
                                   child: Image(
                                     height: 60,
                                     width: 60,
