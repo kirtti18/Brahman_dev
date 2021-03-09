@@ -8,10 +8,10 @@
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
-import '../screens/brahmanprofile.dart';
+import '../models/brahmin.dart';
 import '../screens/brahman_Signup.dart';
+import '../screens/brahmanprofile.dart';
 import '../screens/edit_profile.dart';
 import '../screens/homepage.dart';
 import '../screens/login.dart';
@@ -71,10 +71,7 @@ class AppRouter extends RouterBase {
       return MaterialPageRoute<dynamic>(
         builder: (context) => BrahmanSignup(
           key: args.key,
-          userId: args.userId,
-          email: args.email,
-          imgUrl: args.imgUrl,
-          name: args.name,
+          bramhin: args.bramhin,
         ),
         settings: data,
       );
@@ -117,15 +114,11 @@ extension AppRouterExtendedNavigatorStateX on ExtendedNavigatorState {
 
   Future<dynamic> pushBrahmanSignup({
     Key key,
-    String userId,
-    String email,
-    String imgUrl,
-    String name,
+    Brahman bramhin,
   }) =>
       push<dynamic>(
         Routes.brahmanSignup,
-        arguments: BrahmanSignupArguments(
-            key: key, userId: userId, email: email, imgUrl: imgUrl, name: name),
+        arguments: BrahmanSignupArguments(key: key, bramhin: bramhin),
       );
 
   Future<dynamic> pushEditProfile() => push<dynamic>(Routes.editProfile);
@@ -144,10 +137,6 @@ extension AppRouterExtendedNavigatorStateX on ExtendedNavigatorState {
 /// BrahmanSignup arguments holder class
 class BrahmanSignupArguments {
   final Key key;
-  final String userId;
-  final String email;
-  final String imgUrl;
-  final String name;
-  BrahmanSignupArguments(
-      {this.key, this.userId, this.email, this.imgUrl, this.name});
+  final Brahman bramhin;
+  BrahmanSignupArguments({this.key, this.bramhin});
 }

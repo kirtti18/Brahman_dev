@@ -1,18 +1,14 @@
-import 'package:b1/controllers/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:velocity_x/velocity_x.dart';
 
+import 'package:b1/controllers/auth.dart';
+import 'package:b1/models/brahmin.dart';
+
 class BrahmanSignup extends StatefulWidget {
-  final String userId;
-  final String email;
-  final String imgUrl;
-  final String name;
+  final Brahman bramhin;
   const BrahmanSignup({
     Key key,
-    this.userId,
-    this.email,
-    this.imgUrl,
-    this.name,
+    this.bramhin,
   }) : super(key: key);
   @override
   _BrahmanSignupState createState() => _BrahmanSignupState();
@@ -110,10 +106,11 @@ class _BrahmanSignupState extends State<BrahmanSignup> {
                       hintMaxLines: 3,
                       prefixIcon: Icon(Icons.location_on_outlined),
                       suffixIcon: Icon(Icons.gps_fixed_rounded),
-                      hintText: "Enter your Location",
+                      hintText: "Enter your Address",
                       border: InputBorder.none,
                     ),
                     keyboardType: TextInputType.streetAddress,
+                    maxLength: 255,
                   ),
                 ),
               ),
@@ -125,11 +122,10 @@ class _BrahmanSignupState extends State<BrahmanSignup> {
                 child: Container(
                   child: Center(
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Image(
-                          image: AssetImage('assets/images/google.png'),
-                        ),
-                        "Sign in with Google".text.bold.black.size(20).make(),
+                        "Submit".text.bold.black.size(20).make(),
                       ],
                     ),
                   ),
@@ -138,7 +134,13 @@ class _BrahmanSignupState extends State<BrahmanSignup> {
                   color: Colors.grey[300],
                 ),
                 onTap: () async {
-                  await AuthController().signIn(isBramhin: true);
+                  await AuthController().createNewBramhin(
+                      bramhin: Brahman(
+                    brahmanId: widget.bramhin.brahmanId,
+                    name: "",
+                    phone: "",
+                    address: "",
+                  ));
                 },
               ),
             ),

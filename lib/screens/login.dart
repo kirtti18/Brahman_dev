@@ -57,6 +57,10 @@ class _LoginState extends State<Login> {
               left: 55,
               child: InkWell(
                 child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.grey[300],
+                  ),
                   child: Center(
                     child: Row(
                       children: [
@@ -69,20 +73,19 @@ class _LoginState extends State<Login> {
                   ),
                   height: 50,
                   width: 250,
-                  color: Colors.grey[300],
                 ),
                 onTap: () async {
-                  await AuthController().signIn(isBramhin: null);
+                  await AuthController().signIn(isBramhin: false);
                 },
               ),
             ),
             Positioned(
               top: 520,
               left: 40,
-              child: "____________________________________________"
-                  .text
-                  .gray500
-                  .make(),
+              right: 40,
+              child: Divider(
+                color: Colors.black,
+              ),
             ),
             Positioned(
               top: 580,
@@ -93,19 +96,27 @@ class _LoginState extends State<Login> {
             Positioned(
               top: 630,
               left: 100,
-              child: ElevatedButton(
-                child: Text("Sign up"),
-                style: ElevatedButton.styleFrom(
-                    primary: Colors.orangeAccent,
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                    textStyle: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    )),
-                onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => BrahmanSignup()));
+              child: InkWell(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.grey[300],
+                  ),
+                  child: Center(
+                    child: Row(
+                      children: [
+                        Image(
+                          image: AssetImage('assets/images/google.png'),
+                        ),
+                        "Sign in with Google".text.bold.black.size(20).make(),
+                      ],
+                    ),
+                  ),
+                  height: 50,
+                  width: 250,
+                ),
+                onTap: () async {
+                  await AuthController().signIn(isBramhin: true);
                 },
               ),
             ),

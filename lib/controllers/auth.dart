@@ -5,6 +5,7 @@ import 'package:b1/models/brahmin.dart';
 import 'dart:io';
 import 'package:b1/models/user.dart';
 import 'package:b1/routes/approute.dart';
+import 'package:b1/routes/approute.gr.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -49,56 +50,56 @@ class AuthController extends BaseController {
   Future<void> signIn({@required bool isBramhin, Brahman brahmin}) async {
     try {
       showLoading();
+      //google sign in start
       GoogleSignInAccount googleUser = await googleSignIn.signIn();
       GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      User firebaseUser =
-          (await firebaseAuth.signInWithCredential(credential)).user;
-
+      //google sign in end
+      //creating a new user in firebase auth
+      var cred = await firebaseAuth.signInWithCredential(credential);
+      User firebaseUser = cred.user; // get a new user from firebase auth
       if (firebaseUser != null) {
         var preference = await SharedPreferences.getInstance();
-        AppUser user = new AppUser();
-        user.name = googleUser.displayName;
-        user.email = googleUser.email;
-        user.userId = firebaseUser.uid;
-        user.imageUrl = googleUser.photoUrl;
-        if (isBramhin != null) {
-          Brahman _brahmin = new Brahman();
-          _brahmin.name = googleUser.displayName;
-          _brahmin.brahmanId = _brahmin.address = "";
-
+        AppUser user = new AppUser(
+          name: googleUser.displayName,
+          email: googleUser.email,
+          userId: firebaseUser.uid,
+          imageUrl: googleUser.photoUrl,
+        );
+        if (isBramhin) {
+          Brahman _brahmin = new Brahman(
+            name: googleUser.displayName,
+            address: "",
+            brahmanId: firebaseUser.uid,
+            lat: 0.0,
+            long: 0.0,
+            phone: "",
+          );
           //for brmhin
           /// if user data already exist (if user data available on fire store )
           var bramhinSnapshot = await firestore
               .collection(AppConstraints.bramhins)
               .where("brahmanId", isEqualTo: firebaseUser.uid)
               .get();
+          //means a new bramhin
           if (bramhinSnapshot.docs.isEmpty) {
+            //redirect to another screen
             ExtendedNavigator.root.replace(
               Routes.brahmanSignup,
               arguments: BrahmanSignupArguments(
-                name: googleUser.displayName,
-                userId: firebaseUser.uid,
-                email: googleUser.email,
-                imgUrl: googleUser.photoUrl,
+                bramhin: _brahmin,
               ),
             );
           } else {
+            //create a new bramhin
             await firestore
                 .collection(AppConstraints.bramhins)
                 .doc(firebaseUser.uid)
                 .set(brahmin.toMap());
           }
-
-          /// just save and sign in
-          /// if not
-
-          /// ask for phone , name, address
-          /// save to bramhin details
-          /// go to home
         } else {
           //for other user
           await firestore
@@ -115,34 +116,48 @@ class AuthController extends BaseController {
     } catch (e) {
       showToast(e.message);
     }
+  }
 
-    Future<void> updateProfile({AppUser name}) async {
-      try {
-        showLoading();
-        setAppState(AppState.Busy);
-        if (_file != null) {
-          Reference reference = storage
-              .ref()
-              .child("${name.userId}.${_file.path.split(".").last}");
-          UploadTask task = reference.putFile(_file);
-          name.imageUrl =
-              await (await task.whenComplete(() {})).ref.getDownloadURL();
-        }
-        await firestore
-            .collection(AppConstraints.users)
-            .doc(name.userId)
-            .update(name.toMap())
-            .then((_) {
-          showToast("updated");
-          _users.removeWhere((e) => e.userId == name.userId);
-          _users.add(name);
-        });
-        setAppState(AppState.Idel);
-        closeLoadings();
-      } catch (e) {
-        showToast(e.message);
-        closeLoadings();
+  Future<void> createNewBramhin({Brahman bramhin}) async {
+    try {
+      showLoading();
+      await firestore
+          .collection(AppConstraints.bramhins)
+          .doc(bramhin.brahmanId)
+          .set(bramhin.toMap());
+      showToast("Your account has been sucessfully created");
+      ExtendedNavigator.root.replace(Routes.myHomePage);
+      closeLoadings();
+    } catch (e) {
+      showToast(e.message);
+    }
+  }
+
+  Future<void> updateProfile({AppUser name}) async {
+    try {
+      showLoading();
+      setAppState(AppState.Busy);
+      if (_file != null) {
+        Reference reference =
+            storage.ref().child("${name.userId}.${_file.path.split(".").last}");
+        UploadTask task = reference.putFile(_file);
+        name.imageUrl =
+            await (await task.whenComplete(() {})).ref.getDownloadURL();
       }
+      await firestore
+          .collection(AppConstraints.users)
+          .doc(name.userId)
+          .update(name.toMap())
+          .then((_) {
+        showToast("updated");
+        _users.removeWhere((e) => e.userId == name.userId);
+        _users.add(name);
+      });
+      setAppState(AppState.Idel);
+      closeLoadings();
+    } catch (e) {
+      showToast(e.message);
+      closeLoadings();
     }
   }
 }
